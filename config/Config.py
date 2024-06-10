@@ -19,6 +19,11 @@ batch_size = 32
 num_workers = 4
 valid_rate = 0.1
 
+cutmix_kwargs = {
+    "alpha": 1.0,
+    "prob": 0.5
+}
+
 num_epochs = 100
 
 optimizer_kwargs = {

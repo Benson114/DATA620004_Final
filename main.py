@@ -1,12 +1,14 @@
 import argparse
 
 import torch.optim as optim
-from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
+from torch.utils.data.dataloader import default_collate
 from torch.utils.tensorboard import SummaryWriter
 
 from config.Config import *
 from src.CIFAR100_Dataset import CIFAR100_Dataset
+from src.CIFAR100_DataAugmentation import collate_fn_cutmix
+from src.Loss import CutmixCriterion
 from src.Models import SimpleCNN, VisionTransformer
 from src.Trainer import Trainer
 
@@ -20,6 +22,7 @@ def main(model_type):
         batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers * n_gpus,
+        collate_fn=collate_fn_cutmix,
         pin_memory=True
     )
     valid_loader = DataLoader(
@@ -27,6 +30,7 @@ def main(model_type):
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers * n_gpus,
+        collate_fn=default_collate,
         pin_memory=True
     )
     test_loader = DataLoader(
@@ -34,6 +38,7 @@ def main(model_type):
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers * n_gpus,
+        collate_fn=default_collate,
         pin_memory=True
     )
 
@@ -43,7 +48,7 @@ def main(model_type):
         model = VisionTransformer(**ViT_kwargs)
     else:
         raise ValueError("model_type must be one of ['SimpleCNN', 'ViT']")
-    criterion = CrossEntropyLoss()
+    criterion = CutmixCriterion()
     optimizer = optim.Adam(model.parameters(), **optimizer_kwargs)
 
     trainer = Trainer(model, train_loader, valid_loader, test_loader, criterion, optimizer, writer)
