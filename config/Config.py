@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3,4,5,6,7'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
 
 import random
 import numpy as np
@@ -17,7 +17,7 @@ n_gpus = torch.cuda.device_count()
 
 batch_size = 32
 num_workers = 4
-valid_size = 0.1
+valid_rate = 0.1
 
 num_epochs = 100
 
