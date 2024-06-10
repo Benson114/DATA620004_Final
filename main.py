@@ -50,7 +50,7 @@ def main(model_type):
     trainer.train()
     trainer.test()
 
-    model.save(f"./models/{model_type}.pth")
+    model.save("models", f"{model_type}.ckpt")
 
     writer.close()
 
