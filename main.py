@@ -40,7 +40,7 @@ def main(model_type):
     if model_type == "SimpleCNN":
         model = SimpleCNN(SimpleCNN_kwargs)
     elif model_type == "ViT":
-        model = VisionTransformer(ViT_kwargs)
+        model = VisionTransformer(**ViT_kwargs)
     else:
         raise ValueError("model_type must be one of ['SimpleCNN', 'ViT']")
     criterion = CrossEntropyLoss()
