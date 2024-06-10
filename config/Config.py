@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3,4,5,6,7'
 
 import random
 import numpy as np
@@ -20,6 +20,11 @@ num_workers = 4
 valid_size = 0.1
 
 num_epochs = 100
+
+optimizer_kwargs = {
+    "lr": 1e-3,
+    "weight_decay": 1e-4
+}
 
 SimpleCNN_kwargs = {
     "conv2d_1": {

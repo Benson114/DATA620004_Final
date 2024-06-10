@@ -30,6 +30,17 @@ class SimpleCNN(nn.Module):
         x = self.classifier(x)
         return x
 
+    def save(self, parent_dir, ckpt_name):
+        if not os.path.exists(parent_dir):
+            os.makedirs(parent_dir)
+        path = os.path.join(parent_dir, ckpt_name)
+        torch.save(self.state_dict(), str(path))
+
+    def load(self, parent_dir, ckpt_name):
+        path = os.path.join(parent_dir, ckpt_name)
+        self.load_state_dict(torch.load(str(path)))
+        self.eval()
+
 
 class PatchEmbedding(nn.Module):
     def __init__(self, in_channels, patch_size, emb_size):
@@ -93,3 +104,14 @@ class VisionTransformer(nn.Module):
         x = x.mean(dim=1)
         x = self.classifier(x)
         return x
+
+    def save(self, parent_dir, ckpt_name):
+        if not os.path.exists(parent_dir):
+            os.makedirs(parent_dir)
+        path = os.path.join(parent_dir, ckpt_name)
+        torch.save(self.state_dict(), str(path))
+
+    def load(self, parent_dir, ckpt_name):
+        path = os.path.join(parent_dir, ckpt_name)
+        self.load_state_dict(torch.load(str(path)))
+        self.eval()
