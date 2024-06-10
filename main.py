@@ -1,3 +1,5 @@
+import argparse
+
 import torch.optim as optim
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
@@ -54,5 +56,8 @@ def main(model_type):
 
 
 if __name__ == "__main__":
-    main("SimpleCNN")
-    main("ViT")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--model_type", type=str, required=True, choices=["SimpleCNN", "ViT"])
+    args = parser.parse_args()
+
+    main(args.model_type)
