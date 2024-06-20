@@ -24,12 +24,14 @@ class Trainer:
         running_loss, correct, n = 0.0, 0, 0
 
         for i, (inputs, labels) in enumerate(self.train_loader):
-            self.optimizer.zero_grad()
-            outputs = self.model(inputs)
             labels1, labels2, lam = labels
-            outputs = outputs.to(device)
+
+            inputs = inputs.to(device)
             labels1 = labels1.to(device)
             labels2 = labels2.to(device)
+
+            self.optimizer.zero_grad()
+            outputs = self.model(inputs)
             loss = lam * self.criterion(outputs, labels1) + (1 - lam) * self.criterion(outputs, labels2)
             loss.backward()
             self.optimizer.step()
@@ -58,19 +60,15 @@ class Trainer:
                 loader = self.valid_loader
 
             for i, (inputs, labels) in enumerate(loader):
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+
                 outputs = self.model(inputs)
-                labels1, labels2, lam = labels
-                outputs = outputs.to(device)
-                labels1 = labels1.to(device)
-                labels2 = labels2.to(device)
-                loss = lam * self.criterion(outputs, labels1) + (1 - lam) * self.criterion(outputs, labels2)
+                loss = self.criterion(outputs, labels)
 
                 running_loss += loss.item()
-                correct += (
-                        lam * (outputs.argmax(1) == labels1).float() + (1 - lam) * (
-                            outputs.argmax(1) == labels2).float()
-                ).sum().item()
-                n += labels1.size(0)
+                correct += (outputs.argmax(1) == labels).sum().item()
+                n += labels.size(0)
 
         if n == 0:
             return None, None
