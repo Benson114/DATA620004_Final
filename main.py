@@ -9,12 +9,15 @@ from torch.utils.tensorboard import SummaryWriter
 from config.Config import *
 from src.CIFAR100_Dataset import CIFAR100_Dataset
 from src.CIFAR100_DataAugmentation import collate_fn_cutmix
-from src.Loss import CutmixCriterion
 from src.Models import SimpleCNN, VisionTransformer
 from src.Trainer import Trainer
 
 
-def main(model_type):
+def main(model_type, clear_logs=True):
+    if clear_logs:
+        import shutil
+        shutil.rmtree(f"./logs/{model_type}", ignore_errors=True)
+
     writer = SummaryWriter(log_dir=f"./logs/{model_type}")
 
     train_set, valid_set, test_set = CIFAR100_Dataset()
@@ -64,6 +67,7 @@ def main(model_type):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model_type", type=str, required=True, choices=["SimpleCNN", "ViT"])
+    parser.add_argument("-c", "--clear_logs", type=bool, default=True)
     args = parser.parse_args()
 
-    main(args.model_type)
+    main(args.model_type, args.clear_logs)

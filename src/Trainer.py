@@ -88,11 +88,14 @@ class Trainer:
             valid_loss, valid_acc = self.valid_epoch(epoch, is_test=False)
             end_time = time.time()
             if valid_loss is None:
-                continue
-            print(f"Epoch {epoch + 1}/{num_epochs} | "
-                  f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
-                  f"Valid Loss: {valid_loss:.4f} | Valid Acc: {valid_acc:.4f} | "
-                  f"Time: {end_time - start_time:.2f}s")
+                print(f"Epoch {epoch + 1}/{num_epochs} | "
+                      f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+                      f"Time: {end_time - start_time:.2f}s")
+            else:
+                print(f"Epoch {epoch + 1}/{num_epochs} | "
+                      f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+                      f"Valid Loss: {valid_loss:.4f} | Valid Acc: {valid_acc:.4f} | "
+                      f"Time: {end_time - start_time:.2f}s")
 
     def test(self):
         test_loss, test_acc = self.valid_epoch(0, is_test=True)
