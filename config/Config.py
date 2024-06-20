@@ -15,7 +15,7 @@ torch.manual_seed(seed)
 
 n_gpus = torch.cuda.device_count()
 
-batch_size = 128
+batch_size = 64
 num_workers = 4
 valid_rate = 0.0
 
@@ -88,7 +88,7 @@ ViT_kwargs = {
     "in_channels": 3,
     "patch_size": 32,
     "emb_size": 768,
-    "num_layers": 12,
+    "num_layers": 8,
     "num_heads": 16,
     "dim_ffn": 2048,
     "dropout": 0.1,
