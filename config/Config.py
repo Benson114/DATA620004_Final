@@ -16,19 +16,19 @@ torch.manual_seed(seed)
 n_gpus = torch.cuda.device_count()
 
 batch_size = 64
-num_workers = 4
-valid_rate = 0.0
+num_workers = 8
+valid_rate = 0.1
 
 cutmix_kwargs = {
     "alpha": 1.0,
-    "prob": 0.5,
+    "prob": 0.4,
 }
 
 num_epochs = 100
 
 optimizer_kwargs = {
-    "lr": 1e-3,
-    "weight_decay": 1e-4,
+    "lr": 2e-3,
+    "weight_decay": 5e-4,
 }
 
 SimpleCNN_kwargs = {
@@ -37,14 +37,14 @@ SimpleCNN_kwargs = {
         "out_channels": 64,
         "kernel_size": 3,
         "stride": 1,
-        "padding": 2,
+        "padding": 1,
     },
     "conv2d_2": {
         "in_channels": 64,
         "out_channels": 128,
         "kernel_size": 3,
         "stride": 1,
-        "padding": 2,
+        "padding": 1,
     },
     "conv2d_3": {
         "in_channels": 128,
@@ -86,11 +86,11 @@ SimpleCNN_kwargs = {
 ViT_kwargs = {
     "img_size": 32,
     "in_channels": 3,
-    "patch_size": 32,
-    "emb_size": 768,
-    "num_layers": 8,
+    "patch_size": 4,
+    "emb_size": 512,
+    "num_layers": 16,
     "num_heads": 16,
-    "dim_ffn": 2048,
+    "dim_ffn": 1024,
     "dropout": 0.1,
     "num_classes": 100,
 }

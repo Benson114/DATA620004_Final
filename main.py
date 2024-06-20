@@ -31,7 +31,7 @@ def main(model_type, clear_logs=True):
     )
     valid_loader = DataLoader(
         valid_set,
-        batch_size=batch_size,
+        batch_size=batch_size * 2,
         shuffle=False,
         num_workers=num_workers * n_gpus,
         collate_fn=default_collate,
@@ -39,7 +39,7 @@ def main(model_type, clear_logs=True):
     )
     test_loader = DataLoader(
         test_set,
-        batch_size=batch_size,
+        batch_size=batch_size * 2,
         shuffle=False,
         num_workers=num_workers * n_gpus,
         collate_fn=default_collate,
@@ -52,6 +52,7 @@ def main(model_type, clear_logs=True):
         model = VisionTransformer(**ViT_kwargs)
     else:
         raise ValueError("model_type must be one of ['SimpleCNN', 'ViT']")
+
     criterion = CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), **optimizer_kwargs)
 
