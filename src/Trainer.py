@@ -24,17 +24,21 @@ class Trainer:
         running_loss, correct, n = 0.0, 0, 0
 
         for i, (inputs, labels) in enumerate(self.train_loader):
-            inputs, labels = inputs.to(device), labels.to(device)
-
             self.optimizer.zero_grad()
             outputs = self.model(inputs)
-            loss = self.criterion(outputs, labels)
+            labels1, labels2, lam = labels
+            outputs = outputs.to(device)
+            labels1 = labels1.to(device)
+            labels2 = labels2.to(device)
+            loss = lam * self.criterion(outputs, labels1) + (1 - lam) * self.criterion(outputs, labels2)
             loss.backward()
             self.optimizer.step()
 
             running_loss += loss.item()
-            correct += (outputs.argmax(1) == labels).sum().item()
-            n += labels.size(0)
+            correct += (
+                    lam * (outputs.argmax(1) == labels1).float() + (1 - lam) * (outputs.argmax(1) == labels2).float()
+            ).sum().item()
+            n += labels1.size(0)
 
         self.writer.add_scalar("Train Loss", running_loss / n, epoch)
         self.writer.add_scalar("Train Accuracy", correct / n, epoch)
@@ -54,14 +58,22 @@ class Trainer:
                 loader = self.valid_loader
 
             for i, (inputs, labels) in enumerate(loader):
-                inputs, labels = inputs.to(device), labels.to(device)
-
                 outputs = self.model(inputs)
-                loss = self.criterion(outputs, labels)
+                labels1, labels2, lam = labels
+                outputs = outputs.to(device)
+                labels1 = labels1.to(device)
+                labels2 = labels2.to(device)
+                loss = lam * self.criterion(outputs, labels1) + (1 - lam) * self.criterion(outputs, labels2)
 
                 running_loss += loss.item()
-                correct += (outputs.argmax(1) == labels).sum().item()
-                n += labels.size(0)
+                correct += (
+                        lam * (outputs.argmax(1) == labels1).float() + (1 - lam) * (
+                            outputs.argmax(1) == labels2).float()
+                ).sum().item()
+                n += labels1.size(0)
+
+        if n == 0:
+            return None, None
 
         if not is_test:
             self.writer.add_scalar("Valid Loss", running_loss / n, epoch)
@@ -75,6 +87,8 @@ class Trainer:
             train_loss, train_acc = self.train_epoch(epoch)
             valid_loss, valid_acc = self.valid_epoch(epoch, is_test=False)
             end_time = time.time()
+            if valid_loss is None:
+                continue
             print(f"Epoch {epoch + 1}/{num_epochs} | "
                   f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
                   f"Valid Loss: {valid_loss:.4f} | Valid Acc: {valid_acc:.4f} | "

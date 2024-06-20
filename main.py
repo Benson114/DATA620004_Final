@@ -1,6 +1,7 @@
 import argparse
 
 import torch.optim as optim
+from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 from torch.utils.tensorboard import SummaryWriter
@@ -48,7 +49,7 @@ def main(model_type):
         model = VisionTransformer(**ViT_kwargs)
     else:
         raise ValueError("model_type must be one of ['SimpleCNN', 'ViT']")
-    criterion = CutmixCriterion()
+    criterion = CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), **optimizer_kwargs)
 
     trainer = Trainer(model, train_loader, valid_loader, test_loader, criterion, optimizer, writer)

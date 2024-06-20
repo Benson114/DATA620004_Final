@@ -4,25 +4,23 @@ from config.Config import *
 
 
 class SimpleCNN(nn.Module):
-    def __init__(self, simple_cnn_kwargs):
+    def __init__(self, kwargs):
         super(SimpleCNN, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(**simple_cnn_kwargs["conv2d_1"]),
-            nn.ReLU(),
-            nn.Conv2d(**simple_cnn_kwargs["conv2d_2"]),
-            nn.ReLU(),
-            nn.MaxPool2d(**simple_cnn_kwargs["maxpool2d_1"]),
-            nn.Conv2d(**simple_cnn_kwargs["conv2d_3"]),
-            nn.ReLU(),
-            nn.Conv2d(**simple_cnn_kwargs["conv2d_4"]),
-            nn.ReLU(),
-            nn.MaxPool2d(**simple_cnn_kwargs["maxpool2d_2"])
+            nn.Conv2d(**kwargs["conv2d_1"]), nn.BatchNorm2d(kwargs["bn_1"]),
+            nn.ReLU(), nn.MaxPool2d(**kwargs["maxpool2d"]),
+            nn.Conv2d(**kwargs["conv2d_2"]), nn.BatchNorm2d(kwargs["bn_2"]),
+            nn.ReLU(), nn.MaxPool2d(**kwargs["maxpool2d"]),
+            nn.Conv2d(**kwargs["conv2d_3"]), nn.BatchNorm2d(kwargs["bn_3"]),
+            nn.ReLU(), nn.MaxPool2d(**kwargs["maxpool2d"]),
+            nn.Conv2d(**kwargs["conv2d_4"]), nn.BatchNorm2d(kwargs["bn_4"]),
+            nn.ReLU(), nn.MaxPool2d(**kwargs["maxpool2d"])
         )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(**simple_cnn_kwargs["linear_1"]),
-            nn.ReLU(),
-            nn.Linear(**simple_cnn_kwargs["linear_2"])
+            nn.Linear(**kwargs["linear_1"]), nn.ReLU(), nn.Dropout(kwargs["dropout"]),
+            nn.Linear(**kwargs["linear_2"]), nn.ReLU(), nn.Dropout(kwargs["dropout"]),
+            nn.Linear(**kwargs["linear_3"])
         )
 
     def forward(self, x):
