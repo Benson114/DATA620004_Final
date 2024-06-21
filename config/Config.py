@@ -21,14 +21,14 @@ valid_rate = 0.1
 
 cutmix_kwargs = {
     "alpha": 1.0,
-    "prob": 0.4,
+    "prob": 0.5,
 }
 
-num_epochs = 100
+num_epochs = 200
 
 optimizer_kwargs = {
-    "lr": 2e-3,
-    "weight_decay": 5e-4,
+    "lr": 1e-3,
+    "weight_decay": 3e-4,
 }
 
 SimpleCNN_kwargs = {
