@@ -3,6 +3,4 @@
 __pycache__/
 
 data/
-logs/
 models/
-ref/

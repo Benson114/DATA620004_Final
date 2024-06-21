@@ -35,3 +35,6 @@ python test.py -m [模型类型]
 python viz.py -m [模型类型]
 ```
 
+## Reference
+
+https://github.com/ra1ph2/Vision-Transformer
