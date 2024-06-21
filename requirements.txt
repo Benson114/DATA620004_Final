@@ -1,3 +1,4 @@
 torch~=2.3.1+cu118
 torchvision~=0.18.1+cu118
 numpy~=1.26.3
+torchviz~=0.0.2

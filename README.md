@@ -28,3 +28,10 @@ python main.py -m ViT -c False
 ```shell
 python test.py -m [模型类型]
 ```
+
+### 模型结构可视化
+
+```shell
+python viz.py -m [模型类型]
+```
+

@@ -41,7 +41,6 @@ class SimpleCNN(nn.Module):
         self.eval()
 
 
-# TODO
 class VisionTransformer(nn.Module):
     def __init__(self, img_size,
                  in_channels, patch_size, emb_size,
