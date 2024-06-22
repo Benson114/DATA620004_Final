@@ -19,7 +19,7 @@ num_classes = 100
 
 num_workers = 4
 num_epochs_full = 50
-num_epochs_pretrain = 40
+num_epochs_pretrain = 50
 batch_size = 32
 lr = 1e-3
 

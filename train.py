@@ -15,15 +15,19 @@ logging.basicConfig(
 
 
 def train(pretrain_type="None", clear_logs=True):
-    writer = SummaryWriter(log_dir=f"./logs/{pretrain_type}")
-
     if clear_logs:
         import shutil
         shutil.rmtree(f"./logs/{pretrain_type}", ignore_errors=True)
 
+    writer = SummaryWriter(log_dir=f"./logs/{pretrain_type}")
+    steps = 0
+
+    target_model = ResNet18(num_classes, pretrain_type).to(device)
+    if n_gpus > 1:
+        target_model = nn.DataParallel(target_model)
+
     if pretrain_type == "None":
         logger.info("## Notice: The pretraining type of the model is none.")
-        target_model = ResNet18(num_classes, pretrain_type).to(device)
 
         dataloader = get_SL_loader()
         optimizer = Adam(target_model.parameters(), lr=lr)
@@ -47,16 +51,16 @@ def train(pretrain_type="None", clear_logs=True):
                 running_loss += loss.item()
                 correct += (outputs.argmax(1) == labels).sum().item()
                 n += images.size(0)
+                
+                steps += 1
+                writer.add_scalar("Step Loss of Complete Model", loss.item(), steps)
 
-            logger.info(f"Epoch {epoch}/{epochs} | Loss: {(running_loss / n):.4f} | Accuracy: {(correct / n):.4f}")
-            writer.add_scalar("Train Loss of Complete Model", running_loss / n, epoch)
-            writer.add_scalar("Train Accuracy of Complete Model", correct / n, epoch)
-
-        target_model.save(f"./models")
+            logger.info(f"Epoch {epoch + 1}/{epochs} | Loss: {(running_loss / n):.4f} | Acc: {(correct / n):.4f}")
+            writer.add_scalar("Epoch Loss of Complete Model", running_loss / n, epoch)
+            writer.add_scalar("Epoch Accuracy of Complete Model", correct / n, epoch)
 
     elif pretrain_type == "SL":
         logger.info("## Notice: The pretraining type of the model is supervised learning.")
-        target_model = ResNet18(num_classes, pretrain_type).to(device)
 
         dataloader = get_SL_loader()
         optimizer = Adam(target_model.parameters(), lr=lr)
@@ -64,7 +68,7 @@ def train(pretrain_type="None", clear_logs=True):
 
         logger.info("The feature net has been pretrained by supervised learning on ImageNet.")
         logger.info("Training the linear classifier by supervised learning on CIFAR-100.")
-        epochs = num_epochs_full - num_epochs_pretrain
+        epochs = num_epochs_full
         for epoch in range(epochs):
             target_model.train()
 
@@ -82,19 +86,23 @@ def train(pretrain_type="None", clear_logs=True):
                 correct += (outputs.argmax(1) == labels).sum().item()
                 n += images.size(0)
 
-            logger.info(f"Epoch {epoch}/{epochs} | Loss: {(running_loss / n):.4f} | Accuracy: {(correct / n):.4f}")
-            writer.add_scalar("Train Loss of Classifier", running_loss / n, epoch)
-            writer.add_scalar("Train Accuracy of Classifier", correct / n, epoch)
+                steps += 1
+                writer.add_scalar("Step Loss of Classifier", loss.item(), steps)
 
-        target_model.save(f"./models")
+            logger.info(f"Epoch {epoch + 1}/{epochs} | Loss: {(running_loss / n):.4f} | Acc: {(correct / n):.4f}")
+            writer.add_scalar("Epoch Loss of Classifier", running_loss / n, epoch)
+            writer.add_scalar("Epoch Accuracy of Classifier", correct / n, epoch)
 
     elif pretrain_type == "SSL":
         logger.info("## Notice: The pretraining type of the model is self-supervised learning.")
-        target_model = ResNet18(num_classes, pretrain_type).to(device)
+
         SimCLR_model = SimCLR(
             base_model=target_model.feature_net,
-            **SimCLR_kwargs
+            pj_head_dim=SimCLR_kwargs["pj_head_dim"]
         ).to(device)  # SimCLR的base_model与ResNet18的feature_net共享参数
+
+        if n_gpus > 1:
+            SimCLR_model = nn.DataParallel(SimCLR_model)
 
         SSL_dataloader = get_SimCLR_loader()
         SSL_optimizer = Adam(SimCLR_model.parameters(), lr=lr)
@@ -117,15 +125,18 @@ def train(pretrain_type="None", clear_logs=True):
                 running_loss += loss.item()
                 n += view1.size(0)
 
-            logger.info(f"Epoch {epoch}/{epochs} | Loss: {(running_loss / n):.4f}")
-            writer.add_scalar("Train Loss of Feature Net", running_loss / n, epoch)
+                steps += 1
+                writer.add_scalar("Step Loss of Feature Net", loss.item(), steps)
+
+            logger.info(f"Epoch {epoch + 1}/{epochs} | Loss: {(running_loss / n):.4f}")
+            writer.add_scalar("Epoch Loss of Feature Net", running_loss / n, epoch)
 
         dataloader = get_SL_loader()
         optimizer = Adam(target_model.linear_classifier.parameters(), lr=lr)
         criterion = CrossEntropyLoss()
 
         logger.info("Training the linear classifier by supervised learning on CIFAR-100.")
-        epochs = num_epochs_full - num_epochs_pretrain
+        epochs = num_epochs_full
         for epoch in range(epochs):
             target_model.train()
 
@@ -143,9 +154,14 @@ def train(pretrain_type="None", clear_logs=True):
                 correct += (outputs.argmax(1) == labels).sum().item()
                 n += images.size(0)
 
-            logger.info(f"Epoch {epoch}/{epochs} | Loss: {(running_loss / n):.4f} | Accuracy: {(correct / n):.4f}")
-            writer.add_scalar("Train Loss of Classifier", running_loss / n, epoch)
-            writer.add_scalar("Train Accuracy of Classifier", correct / n, epoch)
+                steps += 1
+                writer.add_scalar("Step Loss of Classifier", loss.item(), steps)
+
+            logger.info(f"Epoch {epoch + 1}/{epochs} | Loss: {(running_loss / n):.4f} | Acc: {(correct / n):.4f}")
+            writer.add_scalar("Epoch Loss of Classifier", running_loss / n, epoch)
+            writer.add_scalar("Epoch Accuracy of Classifier", correct / n, epoch)
+
+    target_model.save("./models")
 
 
 if __name__ == "__main__":

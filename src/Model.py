@@ -19,7 +19,7 @@ class ResNet18(nn.Module):
             self.feature_net = resnet18()
             self.feature_net.fc = nn.Identity()
         elif pretrain_type == "SL":
-            self.feature_net = resnet18(pretrained=True)
+            self.feature_net = resnet18(weights='IMAGENET1K_V1')
             self.feature_net.fc = nn.Identity()
             for param in self.feature_net.parameters():
                 param.requires_grad = False
