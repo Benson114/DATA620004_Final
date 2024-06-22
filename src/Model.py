@@ -60,19 +60,20 @@ class SimCLR(nn.Module):
         out = self.projection_head(feats)
         return out
 
-    def loss(self, z1, z2, temperature=0.5):
-        """
-        z1 和 z2 分别是对同一批量的图像应用两次数据增强后的特征表示
-        temperature 是温度参数
-        """
-        z = torch.cat([z1, z2], dim=0)  # [2*B, D]
-        sim = F.cosine_similarity(z.unsqueeze(1), z.unsqueeze(0), dim=2)  # [2*B, 2*B]
-        mask = ~torch.eye(z.size(0), dtype=bool, device=z.device)
-        masked_sim = sim[mask].view(z.size(0), -1) / temperature  # [2*B, 2*B-1]
 
-        labels = torch.arange(z.size(0)).to(z.device)  # [2*B]
-        labels[z1.size(0):] -= z1.size(0)
-        labels[:z1.size(0)] += z1.size(0) - 1
+def SimCLR_Loss(z1, z2, temperature=0.5):
+    """
+    z1 和 z2 分别是对同一批量的图像应用两次数据增强后的特征表示
+    temperature 是温度参数
+    """
+    z = torch.cat([z1, z2], dim=0)  # [2*B, D]
+    sim = F.cosine_similarity(z.unsqueeze(1), z.unsqueeze(0), dim=2)  # [2*B, 2*B]
+    mask = ~torch.eye(z.size(0), dtype=bool, device=z.device)
+    masked_sim = sim[mask].view(z.size(0), -1) / temperature  # [2*B, 2*B-1]
 
-        loss = F.cross_entropy(masked_sim, labels)
-        return loss
+    labels = torch.arange(z.size(0)).to(z.device)  # [2*B]
+    labels[z1.size(0):] -= z1.size(0)
+    labels[:z1.size(0)] += z1.size(0) - 1
+
+    loss = F.cross_entropy(masked_sim, labels)
+    return loss

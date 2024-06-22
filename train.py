@@ -23,11 +23,12 @@ def train(pretrain_type="None", clear_logs=True):
     steps = 0
 
     target_model = ResNet18(num_classes, pretrain_type).to(device)
-    if n_gpus > 1:
-        target_model = nn.DataParallel(target_model)
 
     if pretrain_type == "None":
         logger.info("## Notice: The pretraining type of the model is none.")
+
+        if n_gpus > 1:
+            target_model = nn.DataParallel(target_model)
 
         dataloader = get_SL_loader()
         optimizer = Adam(target_model.parameters(), lr=lr)
@@ -61,6 +62,9 @@ def train(pretrain_type="None", clear_logs=True):
 
     elif pretrain_type == "SL":
         logger.info("## Notice: The pretraining type of the model is supervised learning.")
+
+        if n_gpus > 1:
+            target_model = nn.DataParallel(target_model)
 
         dataloader = get_SL_loader()
         optimizer = Adam(target_model.parameters(), lr=lr)
@@ -118,7 +122,7 @@ def train(pretrain_type="None", clear_logs=True):
 
                 SSL_optimizer.zero_grad()
                 z1, z2 = SimCLR_model(view1), SimCLR_model(view2)
-                loss = SimCLR_model.loss(z1, z2)
+                loss = SimCLR_Loss(z1, z2)
                 loss.backward()
                 SSL_optimizer.step()
 
@@ -134,6 +138,9 @@ def train(pretrain_type="None", clear_logs=True):
         dataloader = get_SL_loader()
         optimizer = Adam(target_model.linear_classifier.parameters(), lr=lr)
         criterion = CrossEntropyLoss()
+
+        if n_gpus > 1:
+            target_model = nn.DataParallel(target_model)
 
         logger.info("Training the linear classifier by supervised learning on CIFAR-100.")
         epochs = num_epochs_full
