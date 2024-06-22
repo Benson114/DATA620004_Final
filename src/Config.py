@@ -18,8 +18,8 @@ n_gpus = torch.cuda.device_count()
 num_classes = 100
 
 num_workers = 4
-num_epochs_full = 120
-num_epochs_pretrain = 100
+num_epochs_full = 50
+num_epochs_pretrain = 40
 batch_size = 32
 lr = 1e-3
 
