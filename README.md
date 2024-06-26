@@ -9,3 +9,22 @@
 ```shell
 pip install -r requirements.txt
 ```
+
+## How to Run
+
+### 模型训练
+
+```shell
+python main.py -p [预训练类型]
+# 例
+python main.py -p None
+python main.py -p SL
+```
+
+### 模型测试
+
+请确保已有训练完成自动保存的模型权重
+
+```shell
+python test.py -p [预训练类型]
+```
